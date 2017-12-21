@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<style>
+		
+		img { 	
+			position: absolute;
+			left: 0;
+			bottom: 0;
+		}
+	</style>
+	<script src="js/jquery-3.2.1.min.js">
+		
+
+	</script>
+	<script>
+		$(function () {
+			var a = 0;
+			var b = 0;
+			var c = 0;
+			var i = 0;
+			var time = 0;
+			var tim = null;
+			$(document).on('touchstart',function (evt) {
+				a = evt.touches[0].clientX;
+			})
+			$(document).on('touchmove',function (evt) {
+				b = evt.touches[0].clientX;
+				if (b <= 0) {
+					b = 0;
+				}
+				if (b >= 375 - 150) {
+					b = 375 - 150;
+				}
+				clearInterval(tim);
+				ss();
+				function ss () {
+					c += 5;
+					if (c >= b) {
+						c = b;
+					}
+					time++;
+					// i = (i + 1) % 6;
+					// 0,1,2,3,4,5  0,1,2,3,4,5
+					$('img').attr('src','image/tu'+(time % 6)+'.png');
+					if (time % 12 == 0) {
+						clearInterval(tim)
+					}
+					$('img').css('left',c);
+				}
+
+				tim = setInterval(ss,16);
+				
+			});
+		})
+	</script>
+</head>
+<body>
+	<img src="image/tu0.png" height="220" width="150">
+</body>
+</html>
