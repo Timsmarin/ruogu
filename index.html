@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="stylesheet" href="css/base.css">
+	<link rel="stylesheet" href="css/ruogu.css">
+	<script src="js/jquery-3.2.1.min.js"></script>
+	<script>
+		$(function (){
+			// $('.start').click(function (){
+			// 	alert(1)
+			// })
+			var start  = 0;
+			var tim = setInterval(function(){
+				start += 0.03;
+				$('#mask .tiao').css('width',start+'rem')
+				if(start >= 5.55){
+					clearInterval(tim);
+					$('#mask').css('display','none');
+				}
+			},16)
+		})
+	</script>
+</head>
+<body>
+	<!-- <img class"div" src="image/游戏封面.jpg"> -->
+	<div id="start">
+		<a class="start" href="ruogu1.html"></a>
+		<div></div>
+	</div>
+	<div id="mask">
+		<!-- 上面的文字 -->
+		<img class="i1" src="image/start.png" alt="">
+		<!-- 进度条背景 -->
+		<img class="i2" src="image/bg.png" alt="">
+		<img src="image/star.png" class="i3">
+		<img class="i4" src="image/tiao1.png" height="85" width="340" alt="">
+		<div class="tiao"></div>
+	</div>
+
+</body>
+</html>

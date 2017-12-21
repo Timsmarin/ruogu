@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<link rel="stylesheet" href="css/base.css">
+	<link rel="stylesheet" href="css/ruogu1.css">
+	<script src="js/jquery-3.2.1.min.js"></script>
+	<script>
+		$(function (){
+			function random (n,m) {
+				return Math.floor(Math.random() * (m - n) + n);
+			}
+
+			// 分数排行
+			var sNum = [2,1,3];
+			var strNum = String(sNum);
+			// localStorage.num = strNum;
+			// console.log(getCookie('num'));
+			if(!localStorage.num){
+				localStorage.num = sNum;
+			} else{
+				var arr = (localStorage.num).split(',');
+				for(var k = 0;k<arr.length;k++){
+					arr[k] = parseInt(arr[k])
+				}
+				sNum = arr;
+				// console.log(arr);
+			}
+
+			// 分数数组排序
+			function sort(){
+				var min = sNum[0];
+				var mid = sNum[1];
+				var max = sNum[2];
+				var aa;
+				if(min > max){
+					aa = max;
+					max = min;
+					min = aa;
+				}
+				if(min > mid){
+					aa = mid;
+					mid = min;
+					min = aa;
+				}
+				if(mid > max){
+					aa = mid;
+					mid = max;
+					mid = aa;
+				}
+				sNum = [];
+				sNum.push(min,mid,max);
+				// console.log(sNum);
+			}
+			sort();
+
+
+
+			// 显示第几名
+			function pai(a){
+				if(a > sNum[0]){
+					$('#over img').attr('src','image/f3.png');
+					localStorage.num = [a,sNum[1],sNum[2]];
+					if(a > sNum[1]){
+						$('#over img').attr('src','image/f2.png');
+						localStorage.num = [sNum[0],a,sNum[2]];
+						if(a > sNum[2]){
+							$('#over img').attr('src','image/f1.png');
+							localStorage.num = [sNum[0],sNum[1],a];
+						}
+					}
+				} else{
+					// 未进入前三
+					$('#over img').attr('src','image/f4.png');
+				}
+			}
+			
+
+
+
+			var Score = 0;
+			// 兔子图片转换
+			var i = 6;
+			// 兔子的left值
+			var j = 2.8;
+			var tim = null;
+			
+			// 点击按下抬起的坐标	
+			var a;
+			var b;
+			$(document).on('touchstart',function(evt){
+				a = evt.touches[0].clientX;
+
+				// setTimeout(function(){
+					clearInterval(tim);
+				// },100);
+				// console.log(a);
+				$('#tu img').attr('src','image/tu5.png');
+			});
+
+			$(document).on('touchmove',function(evt){
+				b = evt.touches[0].clientX;
+			});
+
+			$(document).on('touchend',function(evt){
+				if(b - a > 0){
+					// alert('右滑');
+					i = 0;
+					tim = setInterval(function(){
+						i++;
+						j += 0.2;
+						if(i >= 6){
+							i = 6;
+						}
+						if(j >= 6){
+							j = 6;
+						}
+						$('#tu').css('left',j+'rem');
+						$('#tu img').attr('src','image/tu'+ i + '.png');
+					},100);
+					setTimeout(function(){
+						clearInterval(tim);
+					},600);
+				}else if(b - a < 0){
+					// alert('左滑');
+					i = 0;
+					tim = setInterval(function(){
+						i++;
+						j -= 0.2;
+						if(i > 6){
+							i = 1;
+						}
+						if(j <= 0){
+							j = 0;
+						}
+						$('#tu').css('left',j+'rem');
+						$('#tu img').attr('src','image/tu'+ i + '.png');
+					},100);
+					setTimeout(function(){
+						clearInterval(tim);
+					},600);
+				}else{
+					// alert('没动')
+				}
+				$('#tu img').attr('src','image/tu5.png');
+			});
+
+
+
+			// 糖果的构造函数
+			function Plane (json) {
+				json = json || {};
+				this.x = json.x;
+				this.y = json.y;
+				this.width = json.width;
+				this.height = json.height;
+				this.src = json.src;
+				this.speed = json.speed;
+				this.score = json.score;
+				this.boom = json.boom;
+				if (json.src) {
+					this.init();
+				}
+			}
+			// 创建图片元素
+			Plane.prototype.init = function () {
+				// 创建一个图片元素
+				this.img = document.createElement('img');
+				this.img.style.left = this.x + 'px';
+				this.img.style.top = this.y + 'px';
+				this.img.style.width = this.width + 'px';
+				this.img.style.height = this.height + 'px';
+				this.img.src = this.src;
+				// 添加
+				$('#bg').append(this.img);
+			};
+
+
+			// 糖果的构造函数
+			function Enemy (json) {
+				Plane.call(this,json);
+			}
+
+			// 敌方飞机的继承
+			Enemy.prototype = new Plane();
+			Enemy.prototype.constructor = Enemy;
+
+			// 糖果下降
+			Enemy.prototype.down = function () {
+				this.img.style.top = this.speed*5 + this.img.offsetTop + 'px';
+			};
+
+
+
+
+			// 糖果的数组
+			var soler = [];
+			// 开始游戏
+			var b1 = 1;
+			var a1 = 1;
+			// 兔子的left值
+			var tu1 = 0;
+			function start (){
+				b1++;
+				if(b1 % 15 == 0){
+					a1 = random(1,9);
+					if (a1 == 1) {
+						var tang1 = new Enemy({x: random(20,320),y: 0,width: 53,height: 53,src: 'image/tang1.png',score: 5,speed: 2,boom: false});
+						soler.push(tang1);
+					}else if (a1 == 2) {
+						var tang2 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53,src: 'image/tang2.png',score: 10,speed: 2.4,boom: false});
+						soler.push(tang2);
+						time2 = 0;
+					}else if(a1 == 3){
+						var tang3 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53.,src: 'image/tang3.png',score: 15,speed: 2.5,boom: false});
+						soler.push(tang3);
+					}else if(a1 == 4){
+						var tang4 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53.,src: 'image/tang4.png',score: 20,speed: 2.8,boom: false});
+						soler.push(tang4);
+					}else if(a1 == 5){
+						var tang5 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53.,src: 'image/tang5.png',score: 40,speed: 3,boom: false});
+						soler.push(tang5);
+					}else if(a1 == 6){
+						var tang6 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53.,src: 'image/tang6.png',score: 45,speed: 3.2,boom: false});
+						soler.push(tang6);
+					}else if(a1 == 7){
+						var tang7 = new Enemy({x: random(0,320),y: 0,width: 56,height: 56.,src: 'image/tang7.png',score: 60,speed: 3.5,boom: false});
+						soler.push(tang7);
+					}else if(a1 == 8){
+						var tang8 = new Enemy({x: random(0,320),y: 0,width: 53,height: 53.,src: 'image/tang8.png',score: 100,speed: 2,boom: true});
+						soler.push(tang8);
+					};
+				}
+				
+				tu1 = $("#tu").offset().left;
+				for(var i = 0;i<soler.length;i++){
+					soler[i].down();
+					// 糖果掉落到地面消失
+					x2 = soler[i].img.offsetLeft;
+					y2 = soler[i].img.offsetTop;
+
+
+
+					var x1 = tu1 + 60 >= soler[i].img.offsetLeft;
+					// 飞机的left  <= 敌方飞机的left + 敌机的宽 （x）
+					var x2 = tu1 <= soler[i].img.offsetLeft + soler[i].width;
+
+
+
+
+					// console.log(x2,y2)
+					// 掉在地面消失
+					if(y2 >= 600){
+						$(soler[i].img).remove();
+						soler.splice(i,1);
+						i--;
+					}
+
+					// 碰到
+					if(x1 && x2&& (y2 >= 520) &&(y2 < 530)){
+						// 碰到糖果
+						if(!soler[i].boom){
+							$(soler[i].img).remove();
+							Score += soler[i].score;
+							// console.log(Score)
+						} else{
+							// 碰到炸弹
+							$(soler[i].img).remove();
+							soler.splice(i,1);
+							// alert('炸le');
+							clearInterval(tim111);
+							clearInterval(tim2);
+							$(document).off('touchend');
+
+							pai(Score);
+
+							// 第几名显示
+							$('#over').css({display: 'block'});
+							$('#over .score').html(Score)
+							// alert('您的得分是'+ Score);
+						}
+						
+					};
+				};
+				
+			};
+
+			var tim111 = null;
+
+
+			// 倒计时
+			$('#time').html(60)
+			var time = 60;
+			var tim2 = null
+
+			
+			// 分数简介
+			$('#mask div').on('touchstart',function(){
+				$('#mask').css('display','none');
+				$('#hey').css('display','block');
+			});
+
+			
+			// 提示左右滑动
+			$('#hey').on('touchstart',function(){
+				$('#hey').css('display','none');
+				// 糖果开始掉落
+				tim111 = setInterval(start,100);
+				// 开始计时
+				tim2 = setInterval(function(){
+					time--;
+					$('#time').html(time);
+					if(time == 0){
+						// time = 55;
+						// 时间结束
+						clearInterval(tim111);
+						clearInterval(tim2);
+						$(document).off('touchend');
+
+						pai(Score);
+
+						// alert('您的得分是'+ Score);
+						$('#over').css({display: 'block'});
+						$('#over .score').html(Score);
+					}
+				},1000);
+			});
+
+			
+			// 继续游戏
+			$('#over .continue').click(function(){
+				window.location.reload();
+			});
+
+		})
+	</script>
+</head>
+<body>
+	<div id="bg">
+		
+		<!-- 兔子 -->
+		<div id="tu">
+			<img src="image/tu6.png" alt="" style="top: 0;left: 0;">
+		</div>
+		<!-- <img src="image/tang1.png" height="53" width="53" alt=""> -->
+
+	</div>
+	<!-- 蒙版 -->
+	<div id="mask">
+		<!-- 开始 -->
+		<div></div>
+	</div>
+
+	<div id="hey"></div>
+
+	<!-- 时间 -->
+	<div id="time"></div>
+
+
+	<!-- 游戏结束 -->
+	<div id="over">
+		<!-- 第几名 -->
+		<img src="image/f1.png" alt="">
+		<div class="score"></div>
+
+		<!-- 继续游戏 -->
+		<div class="continue"></div>
+	</div>
+</body>
+</html>
